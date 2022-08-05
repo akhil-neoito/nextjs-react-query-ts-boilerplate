@@ -1,13 +1,13 @@
 import { useMemo, useState } from 'react';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
-import type { GetServerSideProps, NextPage } from 'next';
+import type { GetServerSideProps } from 'next';
 import { getArticles } from '@/services/api/article.service';
 import useDebounce from '@/hooks/useDebounce';
 import { useArticlesQuery } from '@/services/queries/article.query';
 import ArticleList from '@/components/ArticleList';
 import { reactQuery } from '@/lib/config';
 import type { NextPageWithLayout } from './_app';
-import PublicLayout from 'layouts/PublicLayout';
+import AuthLayout from '@/layouts/AuthLayout';
 
 export type Filter = { page: number; search?: string };
 
@@ -50,7 +50,7 @@ const Articles: NextPageWithLayout = () => {
   );
 };
 
-Articles.getLayout = (page) => <PublicLayout>{page}</PublicLayout>;
+Articles.getLayout = (page) => <AuthLayout>{page}</AuthLayout>;
 
 export const getServerSideProps: GetServerSideProps = async () => {
   const queryClient = new QueryClient();

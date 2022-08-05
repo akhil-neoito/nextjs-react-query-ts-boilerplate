@@ -1,3 +1,4 @@
+import Header from '@/components/Header/Header';
 import Head from 'next/head';
 
 interface PublicLayoutProps {
@@ -12,7 +13,10 @@ const PublicLayout: React.FC<PublicLayoutProps> = ({ children }) => {
         <meta name="description" content="Logged in" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="flex flex-col min-h-screen">{children}</main>
+      <Header />
+      <main className="flex flex-col min-h-screen">
+        <div className="flex flex-col justify-center h-screen">{children}</div>
+      </main>
     </>
   );
 };
