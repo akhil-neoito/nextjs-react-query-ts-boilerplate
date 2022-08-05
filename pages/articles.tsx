@@ -6,16 +6,17 @@ import useDebounce from '@/hooks/useDebounce';
 import { useArticlesQuery } from '@/services/queries/article.query';
 import ArticleList from '@/components/ArticleList';
 import { reactQuery } from '@/lib/config';
+import type { NextPageWithLayout } from './_app';
+import PublicLayout from 'layouts/PublicLayout';
 
 export type Filter = { page: number; search?: string };
 
-const Articles: NextPage = () => {
+const Articles: NextPageWithLayout = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const debouncedSearchTerm = useDebounce<string>(searchTerm, 500);
   const filter = useMemo<Filter>(
     () => ({
       page: 1,
-      pageSize: 10,
       search: debouncedSearchTerm?.length ? debouncedSearchTerm : undefined,
     }),
     [debouncedSearchTerm]
@@ -48,6 +49,8 @@ const Articles: NextPage = () => {
     </div>
   );
 };
+
+Articles.getLayout = (page) => <PublicLayout>{page}</PublicLayout>;
 
 export const getServerSideProps: GetServerSideProps = async () => {
   const queryClient = new QueryClient();
