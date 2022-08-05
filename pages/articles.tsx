@@ -1,18 +1,15 @@
 import { useMemo, useState } from 'react';
+import { dehydrate, QueryClient } from '@tanstack/react-query';
 import type { GetServerSideProps, NextPage } from 'next';
 import { getArticles } from '@/services/api/article.service';
 import useDebounce from '@/hooks/useDebounce';
 import { useArticlesQuery } from '@/services/queries/article.query';
 import ArticleList from '@/components/ArticleList';
-import { Article } from '@/types/article';
+import { reactQuery } from '@/lib/config';
 
 export type Filter = { page: number; search?: string };
 
-interface Props {
-  articles: Article[];
-}
-
-const Articles: NextPage<Props> = ({ articles }) => {
+const Articles: NextPage = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const debouncedSearchTerm = useDebounce<string>(searchTerm, 500);
   const filter = useMemo<Filter>(
@@ -42,22 +39,27 @@ const Articles: NextPage<Props> = ({ articles }) => {
         </div>
       </div>
       <div className="flex flex-wrap -mx-1 lg:-mx-4">
-        {!articles?.length && isLoading ? (
+        {isLoading ? (
           <div>Loading...</div>
         ) : (
-          <ArticleList articles={data?.results ?? articles} />
+          <ArticleList articles={data?.results ?? []} />
         )}
       </div>
     </div>
   );
 };
 
-export const getServerSideProps: GetServerSideProps<Props> = async () => {
-  const data = await getArticles({ page: 1 });
+export const getServerSideProps: GetServerSideProps = async () => {
+  const queryClient = new QueryClient();
+
+  await queryClient.prefetchQuery(
+    ['getArticles', { page: 1 }, { staleTime: reactQuery.staleTime }],
+    () => getArticles({ page: 1 })
+  );
 
   return {
     props: {
-      articles: data.results,
+      dehydratedState: dehydrate(queryClient),
     },
   };
 };
